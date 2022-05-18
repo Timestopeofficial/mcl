@@ -1,5 +1,6 @@
 GCC_VER=$(shell $(PRE)$(CC) -dumpversion)
 UNAME_S=$(shell uname -s)
+ARCH?=$(shell uname -m)
 ifeq ($(UNAME_S),Linux)
   OS=Linux
 endif
@@ -11,19 +12,22 @@ ifeq ($(findstring CYGWIN,$(UNAME_S)),CYGWIN)
   OS=cygwin
 endif
 ifeq ($(UNAME_S),Darwin)
-  OS=mac
-  ARCH=x86_64
+  ifeq ($(ARCH),x86_64)
+    OS=mac
+    GMP_DIR?=/usr/local/opt/gmp
+  else
+    OS=mac-m1
+    GMP_DIR?=/opt/homebrew/opt/gmp
+  endif
   LIB_SUF=dylib
   OPENSSL_DIR?=/usr/local/opt/openssl
   CFLAGS+=-I$(OPENSSL_DIR)/include
   LDFLAGS+=-L$(OPENSSL_DIR)/lib
-  GMP_DIR?=/usr/local/opt/gmp
   CFLAGS+=-I$(GMP_DIR)/include
   LDFLAGS+=-L$(GMP_DIR)/lib
 else
   LIB_SUF=so
 endif
-ARCH?=$(shell uname -m)
 ifneq ($(findstring $(ARCH),x86_64/amd64),)
   CPU=x86-64
   INTEL=1
@@ -47,11 +51,11 @@ ifeq ($(ARCH),armv7l)
   BIT=32
   #LOW_ASM_SRC=src/asm/low_arm.s
 endif
-ifeq ($(ARCH),aarch64)
+ifneq ($(findstring $(ARCH),aarch64/arm64),)
   CPU=aarch64
   BIT=64
 endif
-ifeq ($(findstring $(OS),mac/mingw64),)
+ifeq ($(findstring $(OS),mac/mac-m1/mingw64/openbsd),)
   LDFLAGS+=-lrt
 endif
 

@@ -78,6 +78,10 @@ ifneq ($(CPU),)
   ASM_SRC=$(ASM_SRC_PATH_NAME).s
 endif
 ASM_OBJ=$(OBJ_DIR)/$(CPU).o
+ifeq ($(OS),mac-m1)
+  ASM_SRC=src/base64.ll
+  ASM_OBJ=$(OBJ_DIR)/base64.o
+endif
 LIB_OBJ=$(OBJ_DIR)/fp.o
 BN256_OBJ=$(OBJ_DIR)/bn_c256.o
 BN384_OBJ=$(OBJ_DIR)/bn_c384.o
@@ -127,6 +131,15 @@ else
 endif
 
 ifneq ($(findstring $(OS),mac/mingw64),)
+  BN256_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+  BN384_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+  BN384_256_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+  BN512_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+  SHE256_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+  SHE384_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+  SHE384_256_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
+endif
+ifneq ($(findstring $(OS),mac/mac-m1/mingw64),)
   BN256_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
   BN384_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
   BN384_256_SLIB_LDFLAGS+=-l$(MCL_SNAME) -L./lib
